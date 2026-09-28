@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import TaskItem from "@/components/dashboard/TaskItem"
+import Link from "next/link"
+import TaskSection from "@/components/dashboard/TaskSection"
 
 export default async function ProjectPage(
     { params }: { params: Promise<{ id: string }> }
@@ -52,47 +53,110 @@ export default async function ProjectPage(
 
 
     return (
-        <div className="p-8">
-            <h1 className="text-2xl font-bold">{project.name}</h1>
+        <div className="min-h-screen bg-slate-50 p-6 md:p-8">
+            <div className="max-w-5xl mx-auto">
 
-            <p className="mt-4 text-gray-600">
-                Project ID: {project.id}
-            </p>
+                {/* Back to Dashboard */}
+                <div className="mb-6">
+                    <Link
+                        href="/dashboard"
+                        className="text-sm text-slate-500 hover:text-slate-900 transition"
+                    >
+                        ← Back to Dashboard
+                    </Link>
+                </div>
 
-            <div className="mt-8">
-                <div className="mt-6">
-                    <h2 className="text-lg font-semibold mb-4">Tasks</h2>
+                {/* Project Header */}
+                <div className="bg-white border border-slate-200 rounded-xl p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-                    <div className="mb-6">
-                        <div className="flex justify-between text-sm mb-1">
-                            <span>Progress</span>
-                            <span>{completionPercentage}%</span>
+                        <div>
+                            <p className="text-sm text-slate-500">
+                                Project
+                            </p>
+
+                            <h1 className="text-3xl font-bold text-slate-900 mt-1">
+                                {project.name}
+                            </h1>
+
+                            <p className="text-sm text-slate-500 mt-2">
+                                {totalTasks}{" "}
+                                {totalTasks === 1 ? "task" : "tasks"} ·{" "}
+                                {completedTasks} completed
+                            </p>
                         </div>
 
-                        <div className="w-full bg-gray-200 rounded h-3">
+                        <div className="text-left sm:text-right">
+                            <p className="text-sm text-slate-500">
+                                Progress
+                            </p>
+
+                            <p className="text-3xl font-bold text-slate-900">
+                                {completionPercentage}%
+                            </p>
+                        </div>
+
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="mt-6">
+
+                        <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                             <div
-                                className="bg-black h-3 rounded transition-all"
-                                style={{ width: `${completionPercentage}%` }}
+                                className="h-full bg-slate-900 rounded-full transition-all duration-300"
+                                style={{
+                                    width: `${completionPercentage}%`,
+                                }}
                             />
                         </div>
 
-                        <p className="text-sm text-gray-500 mt-2">
+                        <p className="text-sm text-slate-500 mt-2">
                             {completedTasks} of {totalTasks} tasks completed
                         </p>
+
+                    </div>
+                </div>
+
+                {/* Tasks */}
+                <div className="mt-8">
+
+                    <div className="flex items-center justify-between mb-5">
+                        <div>
+                            <h2 className="text-xl font-semibold text-slate-900">
+                                Tasks
+                            </h2>
+
+                            <p className="text-sm text-slate-500 mt-1">
+                                Manage the work for this project.
+                            </p>
+                        </div>
                     </div>
 
-                    <CreateTaskForm projectId={project.id} />
+                    {/* Add Task */}
+                    <div className="bg-white border border-slate-200 rounded-xl p-5 mb-5">
+                        <h3 className="text-sm font-semibold text-slate-900 mb-3">
+                            Add a task
+                        </h3>
 
+                        <CreateTaskForm projectId={project.id} />
+                    </div>
+
+                    {/* Task List */}
                     {tasks.length === 0 ? (
-                        <p className="text-gray-500">No tasks yet.</p>
-                    ) : (
-                        <div className="space-y-2">
-                            {tasks.map((task) => (
-                                <TaskItem key={task.id} task={task} />
-                            ))}
+                        <div className="bg-white border border-dashed border-slate-300 rounded-xl p-10 text-center">
+                            <h3 className="text-lg font-semibold text-slate-900">
+                                No tasks yet
+                            </h3>
+                            <p className="text-sm text-slate-500 mt-2">
+                                Add your first task to start tracking progress.
+                            </p>
                         </div>
+                    ) : (
+                        <TaskSection tasks={tasks} />
                     )}
+
                 </div>
+
             </div>
         </div>
     )

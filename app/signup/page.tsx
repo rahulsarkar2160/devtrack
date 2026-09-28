@@ -1,15 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
-export default function LoginPage() {
+export default function SignupPage() {
     const router = useRouter()
 
+    const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
 
@@ -18,29 +20,47 @@ export default function LoginPage() {
 
         setError("")
 
-        if (!email.trim() || !password) {
-            setError("Please enter your email and password")
+        if (!name.trim() || !email.trim() || !password) {
+            setError("Please fill in all fields")
+            return
+        }
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match")
+            return
+        }
+
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters")
             return
         }
 
         setLoading(true)
 
         try {
-            const result = await signIn("credentials", {
-                email,
-                password,
-                redirect: false,
+            const res = await fetch("/api/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                }),
             })
 
-            if (result?.error) {
-                setError("Invalid email or password")
+            const data = await res.json()
+
+            if (!res.ok) {
+                setError(data.error || "Failed to create account")
                 return
             }
 
-            router.push("/dashboard")
+            router.push("/login")
         } catch (error) {
-            console.error("Login failed:", error)
-            setError("Something went wrong. Please try again.")
+            console.error("Signup request failed:", error)
+            setError("Something went wrong. Check the browser console.")
         } finally {
             setLoading(false)
         }
@@ -49,25 +69,30 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
             <div className="w-full max-w-md bg-white border border-slate-200 rounded-xl shadow-sm p-8">
-
                 <div className="text-center mb-8">
-                    <Link
-                        href="/"
-                        className="text-xl font-bold text-slate-900 tracking-tight"
-                    >
-                        DevTrack
-                    </Link>
-
-                    <h1 className="text-2xl font-bold text-slate-900 mt-6">
-                        Welcome!
+                    <h1 className="text-2xl font-bold text-slate-900">
+                        Create your account
                     </h1>
 
                     <p className="text-slate-500 mt-2">
-                        Log in to continue to your projects.
+                        Start managing your projects with DevTrack.
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Name
+                        </label>
+
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Your name"
+                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-slate-900"
+                        />
+                    </div>
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -97,6 +122,20 @@ export default function LoginPage() {
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                            Confirm Password
+                        </label>
+
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-slate-900"
+                        />
+                    </div>
+
                     {error && (
                         <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
                             {error}
@@ -108,17 +147,17 @@ export default function LoginPage() {
                         disabled={loading}
                         className="w-full bg-slate-900 text-white py-2.5 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
                     >
-                        {loading ? "Logging in..." : "Log in"}
+                        {loading ? "Creating account..." : "Create account"}
                     </button>
                 </form>
 
                 <p className="text-center text-sm text-slate-500 mt-6">
-                    Don't have an account?{" "}
+                    Already have an account?{" "}
                     <Link
-                        href="/signup"
+                        href="/login"
                         className="font-medium text-slate-900 hover:underline"
                     >
-                        Sign up
+                        Log in
                     </Link>
                 </p>
             </div>

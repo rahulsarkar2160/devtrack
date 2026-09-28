@@ -1,10 +1,11 @@
 import { withAuth } from "next-auth/middleware"
 
 export default withAuth(
-    function middleware() {
-        // You can add custom logic here later if needed
-    },
+    function middleware() { },
     {
+        pages: {
+            signIn: "/login",
+        },
         callbacks: {
             authorized: ({ token }) => !!token,
         },

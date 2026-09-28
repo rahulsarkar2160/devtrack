@@ -1,0 +1,28 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 64 64"
+  fill="none"
+>
+  <!-- Background -->
+  <rect
+    width="64"
+    height="64"
+    rx="14"
+    fill="#0f111a"
+  />
+
+  <!-- D -->
+  <path
+    d="M18 14H31C41.5 14 49 21.5 49 32C49 42.5 41.5 50 31 50H18V14ZM26 21V43H30.5C37.2 43 41 39 41 32C41 25 37.2 21 30.5 21H26Z"
+    fill="white"
+  />
+
+  <!-- Checkmark -->
+  <path
+    d="M24 31L29 36L40 25"
+    stroke="#2ee68a"
+    stroke-width="5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
